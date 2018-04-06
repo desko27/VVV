@@ -410,7 +410,7 @@ nginx_setup() {
             -key /etc/nginx/server.key \
             -out /etc/nginx/server.crt \
             -days 3650 \
-            -subj /CN=*.wordpress-develop.dev/CN=*.wordpress.dev/CN=*.vvv.dev 2>&1)"
+            -subj /CN=*.wordpress-develop.test/CN=*.wordpress.test/CN=*.vvv.test 2>&1)"
 	  echo "$vvvsigncert"
   fi
 
@@ -715,7 +715,7 @@ define( 'WP_SITEURL', 'http://' . \$_SERVER['HTTP_HOST'] );
 define( 'WP_DEBUG', true );
 PHP
     echo "Installing WordPress Stable..."
-    noroot wp core install --url=local.wordpress.dev --quiet --title="Local WordPress Dev" --admin_name=admin --admin_email="admin@local.dev" --admin_password="password"
+    noroot wp core install --url=local.wordpress.test --quiet --title="Local WordPress Dev" --admin_name=admin --admin_email="admin@local.test" --admin_password="password"
   else
     echo "Updating WordPress Stable..."
     cd /srv/www/wordpress-default
@@ -743,32 +743,32 @@ wordpress_develop(){
 
     cd /tmp/wordpress-develop/src/
 
-    echo "Installing local npm packages for src.wordpress-develop.dev, this may take several minutes."
+    echo "Installing local npm packages for src.wordpress-develop.test, this may take several minutes."
     noroot npm install
 
-    echo "Initializing grunt and creating build.wordpress-develop.dev, this may take several minutes."
+    echo "Initializing grunt and creating build.wordpress-develop.test, this may take several minutes."
     noroot grunt
 
     echo "Moving WordPress develop to a shared directory, /srv/www/wordpress-develop"
     mv /tmp/wordpress-develop /srv/www/
 
     cd /srv/www/wordpress-develop/src/
-    echo "Creating wp-config.php for src.wordpress-develop.dev and build.wordpress-develop.dev."
+    echo "Creating wp-config.php for src.wordpress-develop.test and build.wordpress-develop.test."
     noroot wp core config --dbname=wordpress_develop --dbuser=wp --dbpass=wp --quiet --extra-php <<PHP
 // Match any requests made via xip.io.
 if ( isset( \$_SERVER['HTTP_HOST'] ) && preg_match('/^(src|build)(.wordpress-develop.)\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(.xip.io)\z/', \$_SERVER['HTTP_HOST'] ) ) {
 define( 'WP_HOME', 'http://' . \$_SERVER['HTTP_HOST'] );
 define( 'WP_SITEURL', 'http://' . \$_SERVER['HTTP_HOST'] );
 } else if ( 'build' === basename( dirname( __FILE__ ) ) ) {
-// Allow (src|build).wordpress-develop.dev to share the same Database
-define( 'WP_HOME', 'http://build.wordpress-develop.dev' );
-define( 'WP_SITEURL', 'http://build.wordpress-develop.dev' );
+// Allow (src|build).wordpress-develop.test to share the same Database
+define( 'WP_HOME', 'http://build.wordpress-develop.test' );
+define( 'WP_SITEURL', 'http://build.wordpress-develop.test' );
 }
 
 define( 'WP_DEBUG', true );
 PHP
-    echo "Installing src.wordpress-develop.dev."
-    noroot wp core install --url=src.wordpress-develop.dev --quiet --title="WordPress Develop" --admin_name=admin --admin_email="admin@local.dev" --admin_password="password"
+    echo "Installing src.wordpress-develop.test."
+    noroot wp core install --url=src.wordpress-develop.test --quiet --title="WordPress Develop" --admin_name=admin --admin_email="admin@local.test" --admin_password="password"
     cp /srv/config/wordpress-config/wp-tests-config.php /srv/www/wordpress-develop/
     cd /srv/www/wordpress-develop/
   else
@@ -902,4 +902,4 @@ custom_vvv
 end_seconds="$(date +%s)"
 echo "-----------------------------"
 echo "Provisioning complete in "$(( end_seconds - start_seconds ))" seconds"
-echo "For further setup instructions, visit http://vvv.dev"
+echo "For further setup instructions, visit http://vvv.test"
